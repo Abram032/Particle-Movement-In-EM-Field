@@ -16,10 +16,13 @@ typedef struct data
 	long double q;							//£adunek elektryczny q = n * e
 } input;
 
-input data_input()
+
+/*
+	Dane dla ma³ej skali atomu.
+*/
+input data_input_micro()
 {
 	//Deklaracja zmiennych pomocniczych.
-
 	long double x_pos, y_pos, z_pos, Ex, Ey, Ez, Bx, By, Bz, vx, vy, vz, m, dt, q, n;
 	//Podajemy sk³adowe natê¿enia pola elektrycznego [N/C]
 	printf("Wektor natezenia pola elektrycznego [N/C]: \n");
@@ -72,7 +75,64 @@ input data_input()
 }
 
 /*
-Obliczamy si³ê natê¿enia pola elektrycznego w ka¿dej osi x,y,z za pomoc¹ wzoru F = Eq
+	Dane dla skali makroskopowej.
+*/
+input data_input_macro()
+{
+	//Deklaracja zmiennych pomocniczych.
+	long double x_pos, y_pos, z_pos, Ex, Ey, Ez, Bx, By, Bz, vx, vy, vz, m, dt, q;
+	//Podajemy sk³adowe natê¿enia pola elektrycznego [N/C]
+	printf("Wektor natezenia pola elektrycznego [N/C]: \n");
+	printf("Ex: ");
+	scanf(" %lf", &Ex);
+	printf("Ey: ");
+	scanf(" %lf", &Ey);
+	printf("Ez: ");
+	scanf(" %lf", &Ez);
+	//Podajemy sk³adowe indukcji magnetycznej [T]
+	printf("Wektor indukcji magnetycznej [T]: \n");
+	printf("Bx: ");
+	scanf(" %lf", &Bx);
+	printf("By: ");
+	scanf(" %lf", &By);
+	printf("Bz: ");
+	scanf(" %lf", &Bz);
+	//Podajemy sk³adowe prêdkoœci [m/s]
+	printf("Wektor predkosci [m/s]: \n");
+	printf("vx: ");
+	scanf(" %lf", &vx);
+	printf("vy: ");
+	scanf(" %lf", &vy);
+	printf("vz: ");
+	scanf(" %lf", &vz);
+	//Podajemy masê cz¹stki [mg]
+	printf("Masa czastki [mg]: \n");
+	printf("m: ");
+	scanf(" %lf", &m);
+	//Podajemy ³adunek [mC]
+	printf("Ladunek [mC]: \n");
+	printf("q: ");
+	scanf(" %lf", &q);
+	//Podajemy krok czasowy [ms]
+	printf("Krok czasowy [ms]: \n");
+	printf("dt: ");
+	scanf(" %lf", &dt);
+
+	//Przeliczanie jednostek
+	q = q * 0.001;								// q = q * 10^(-3)C
+	dt = dt * 0.001;							// dt = dt * 10^(-3)s
+	m = m * 0.000001;							// m = m * 10^(-6)kg
+
+	x_pos = 0;					//Ustalenie pocz¹tkowej pozycji cz¹stki w osi x
+	y_pos = 0;					//Ustalenie pocz¹tkowej pozycji cz¹stki w osi y
+	z_pos = 0;					//Ustalenie pocz¹tkowej pozycji cz¹stki w osi z
+
+	input data = { x_pos, y_pos, z_pos, Ex, Ey, Ez, Bx, By, Bz, vx, vy, vz, m, dt, q };		//Przekazanie wartoœci do struktury z danymi
+	return data;	//Zwracamy strukturê z danymi
+}
+
+/*
+	Obliczamy si³ê natê¿enia pola elektrycznego w ka¿dej osi x,y,z za pomoc¹ wzoru F = Eq
 */
 
 long double Electric_Field_Force_X_Axis(input data)
@@ -345,12 +405,45 @@ int main()
 	//Deklaracja zmiennych pomocniczych wykorzystywanej w pêtli
 	//i - zmienna pomocnicza
 	//n - liczba kroków, podawana przez u¿ytkownika
-	int i, n;
+	//menu - wybór opcji z menu
+	//menu_loop - pêtla w menu
+	int i, n, menu;
+	int menu_loop = 1;
 	//Deklaracja zmiennych pomocniczych które przechowuj¹ tymczasowe obliczone wartoœci w przysz³ych krokach.
 	long double velocity_x, velocity_y, velocity_z, position_x, position_y, position_z;
 	input data;
+	//Menu g³ówne programu, wybieramy typ skalê symulacji.
 	printf("Program do symulacji toru lotu czastki w jednorodnym polu elektromagnetycznym.\n");
-	data = data_input();
+	do
+	{
+		printf("Dla jakiej skali chcesz wykonac symulacje?\n 1. Skala Mikro \n 2. Skala Makro\n 3. Demo Skali Mikro\n 4. Demo Skali Makro\nOpcja: ");
+		scanf(" %d", &menu);
+		switch (menu)
+		{
+		case 1:
+			//Skala mikroskopowa dla pojedyñczego atomu.
+			data = data_input_micro();
+			menu_loop = 0;
+			break;
+		case 2:
+			//Skala makroskopowa dla wiêkszych obiektów np. kropla oleju.
+			data = data_input_macro();
+			menu_loop = 0;
+			break;
+		case 3:
+			system("demomicro.plt");
+			system("demomicro2.plt");
+			break;
+		case 4:
+			system("demomacro.plt");
+			system("demomacro2.plt");
+			break;
+		default:
+			printf("Nieznana opcja.\n");
+			break;
+		}
+	} 
+	while (menu_loop == 1);
 	//Wyœwietlamy informacje o si³ach
 	Data_output_console(data);
 	//Czyœcimy pliki z danymi o symulacji
